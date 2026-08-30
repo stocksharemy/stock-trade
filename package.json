@@ -1,0 +1,24 @@
+{
+  "name": "stock-trade-backend",
+  "version": "1.0.0",
+  "description": "Stock Trade Educational Platform - Backend API",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python -m flask run --reload",
+    "test": "pytest",
+    "lint": "flake8 .",
+    "format": "black ."
+  },
+  "keywords": [
+    "stock-trading",
+    "educational",
+    "paper-trading",
+    "financial-literacy"
+  ],
+  "author": "stocksharemy",
+  "license": "MIT",
+  "engines": {
+    "python": ">=3.8.0"
+  }
+}

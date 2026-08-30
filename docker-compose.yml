@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: stock-trade-db
+    environment:
+      POSTGRES_USER: stock_trader
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_DB: stock_trade
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stock-trade-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: stock-trade-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - stock-trade-network
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stock-trade-backend
+    environment:
+      DATABASE_URL: postgresql://stock_trader:secure_password@postgres:5432/stock_trade
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your_jwt_secret_key
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      STOCK_API_KEY: ${STOCK_API_KEY}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    networks:
+      - stock-trade-network
+    command: python app.py
+
+  # Frontend Web Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: stock-trade-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://backend:5000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+    networks:
+      - stock-trade-network
+
+volumes:
+  postgres_data:
+
+networks:
+  stock-trade-network:
+    driver: bridge
